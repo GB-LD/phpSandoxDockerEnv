@@ -1,0 +1,46 @@
+version: '3'
+services:
+  php:
+    build: ./docker
+    container_name: sandbox_dev_php
+    ports: 
+      - 80:80
+    volumes:
+      - ./:/var/www/html
+      - ./config/php:/usr/local/etc/
+    networks:
+      - sandbox
+
+  db:
+    image: mysql:latest
+    container_name: sandbox_dev_db
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=php_docker
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+    networks:
+      - sandbox
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: sandbox_dev_phpmyadmin
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - 8001:80
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+    networks:
+      - sandbox
+
+networks:
+  sandbox:
+
+volumes:
+  db-data:
